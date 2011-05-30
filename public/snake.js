@@ -17,10 +17,6 @@ function start(canvas){
   
   world.addSnake(snake1);
   world.newFood();
-
-  //updateScore();
-
-  //  direction = 'right';
   play();
 
 
