@@ -10,11 +10,13 @@ function checkSupported() {
 
 function start(canvas){
 
-  var faye = new Faye.Client('http://faye-snake-server.heroku.com:80/faye');  
+  var client = new Faye.Client('http://faye-snake-server.heroku.com:80/faye');  
   faye.subscribe('/messages/new', function (data) {  
     alert(data);  
   });  
   
+  client.publish('/messages/new', {text: 'Hi there'});
+
   ctx = canvas.getContext('2d');
   gridSize = 10;
   ctx.clearRect(0,0, canvas.width, canvas.height);
