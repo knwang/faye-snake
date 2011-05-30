@@ -21,17 +21,21 @@ function start(canvas){
   //updateScore();
 
   //  direction = 'right';
+  play();
 
+
+}
+
+function play(){
   interval = setInterval(function refreshWorld() {
     world.snakes[0].move();     
     world.refresh();
     }
     ,100
   );
+  
 
-
-}
-
+};
 
 
 function World (canvas, gridSize) {
@@ -43,7 +47,6 @@ function World (canvas, gridSize) {
   
 
   World.prototype.refresh = function() {
-    console.log('in refresh');
    
     this.snakes[0].draw(canvas);    
 
@@ -60,7 +63,7 @@ function World (canvas, gridSize) {
 
   World.prototype.newFood = function() {
     this.foodPoint = new Food(Math.floor(Math.random()*(this.canvas.width/this.gridSize))*this.gridSize, Math.floor(Math.random()*(this.canvas.height/this.gridSize))*this.gridSize);
-    if (this.snakes[0].body.indexOf(this.foodPoint) > 0) {
+    if (this.snakes[0].body.indexOf(this.foodPoint) >= 0) {
       this.newFood();
     } else {
       ctx = this.canvas.getContext('2d');
@@ -81,7 +84,7 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
   var self = this;
   this.body = new Array();
   this.length = length; 
-  this.currentPosition = {x: startPositionX, y: startPositionY};
+  this.currentPosition = {'x': startPositionX, 'y': startPositionY};
   this.direction = direction;
   this.fillStyle = fillStyle;
   this.score = 0; 
@@ -127,12 +130,16 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
   }
 
   Snake.prototype.draw = function(canvas) {
-    if (this.body.some(hasEatenItself)) {
+
+    if (this.body.some(function(element){
+                          return (element.x == self.currentPosition.x) && (element.y == self.currentPosition.y);
+                      })){
       gameOver();
       return false;
-    }
+    };
+
     context = canvas.getContext('2d');
-    this.body.push({x: this.currentPosition.x, y: this.currentPosition.y});
+    this.body.push({'x': this.currentPosition.x, 'y': this.currentPosition.y});
     context.fillStyle = this.fillStyle;
     context.fillRect(this.currentPosition.x, this.currentPosition.y, gridSize, gridSize);
 
@@ -163,11 +170,6 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
     }
   };
 
-  
-  function hasEatenItself(element, index, array) {
-    return (element[0] == self.currentPosition.x && element[1] == self.currentPosition.y);  
-  };
-
   Snake.prototype.whichWayToGo = function(axisType){  
     if (axisType=='x') {
       a = (self.currentPosition.x> canvas.width / 2) ? self.moveLeft() : self.moveRight();
@@ -186,7 +188,7 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
 
 function restart(){
   pause();
-  start();
+  start(canvas);
 }
 
 function pause(){
@@ -196,7 +198,7 @@ function pause(){
 
 
 function gameOver(){
-  var score = (snakeLength - 3)*10;
+  var score = (world.snakes[0].length - 3)*10;
   pause();
   alert("Game Over. Your score was "+ score);
   ctx.clearRect(0,0, canvas.width, canvas.height);
