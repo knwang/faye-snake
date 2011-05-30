@@ -20,20 +20,24 @@ function start(canvas){
   ctx = canvas.getContext('2d');
   gridSize = 10;
   ctx.clearRect(0,0, canvas.width, canvas.height);
-  var snake1 = new Snake(50,50,3,'right','rgb(200,0,0)');
   this.world = new World (canvas, gridSize);
   
-  world.addSnake(snake1);
+  world.addSnake(new Snake(50,50,3,'right','rgb(200,0,0)'));
+  world.addSnake(new Snake(100,100,3,'left','rgb(0,200,0)'));
+  
+
   world.newFood();
-  play();
+  play(world);
 }
 
-function play(){
+function play(world){
   interval = setInterval(function refreshWorld() {
-    world.snakes[0].move();     
+    //alert("snake1:" + JSON.stringify(world.snakes[0].currentPosition) + "snake2:" + JSON.stringify(world.snakes[1].currentPosition));
+    world.snakes[0].move();
+    world.snakes[1].move();
     world.refresh();
     }
-    ,100  
+    ,100
   );
   
 
@@ -41,6 +45,7 @@ function play(){
 
 
 function World (canvas, gridSize) {
+  var self = this;
   this.snakes = new Array;
   this.canvas = canvas;
   this.gridSize = gridSize;
@@ -49,13 +54,13 @@ function World (canvas, gridSize) {
   
 
   World.prototype.refresh = function() {
-   
-    this.snakes[0].draw(canvas);    
-
-    if (this.snakes[0].currentPosition.x == this.foodPoint.x && this.snakes[0].currentPosition.y == this.foodPoint.y) {
-      this.newFood();
-      this.snakes[0].length += 1;
-      this.snakes[0].updateScore();
+    for(i=0; i<this.snakes.length; i++){
+      this.snakes[i].draw(canvas);    
+      if (this.snakes[i].currentPosition.x == this.foodPoint.x && this.snakes[i].currentPosition.y == this.foodPoint.y) {
+        this.newFood();
+        this.snakes[i].length += 1;
+        this.snakes[i].updateScore();
+      }
     }
 
   };
@@ -66,13 +71,15 @@ function World (canvas, gridSize) {
 
   World.prototype.newFood = function() {
     this.foodPoint = new Food(Math.floor(Math.random()*(this.canvas.width/this.gridSize))*this.gridSize, Math.floor(Math.random()*(this.canvas.height/this.gridSize))*this.gridSize);
-    if (this.snakes[0].body.indexOf(this.foodPoint) >= 0) {
-      this.newFood();
-    } else {
-      ctx = this.canvas.getContext('2d');
-      ctx.fillStyle = "rgb(10,100,0)";
-      ctx.fillRect(this.foodPoint.x, this.foodPoint.y, this.gridSize, this.gridSize);
-    };
+    for(j=0; j< this.snakes.length; j++){
+      if (this.snakes[j].body.indexOf(this.foodPoint) >= 0) {
+        this.newFood();
+      }
+    }
+    
+    ctx = this.canvas.getContext('2d');
+    ctx.fillStyle = "rgb(10,100,0)";
+    ctx.fillRect(this.foodPoint.x, this.foodPoint.y, this.gridSize, this.gridSize);
   };
   
 
@@ -93,48 +100,49 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
   this.score = 0; 
   
   Snake.prototype.moveUp = function (){
-    if ( self.currentPosition.y - gridSize >= 0) {
-      self.executeMove('up', 'y', self.currentPosition.y - gridSize);
+    if ( this.currentPosition.y - gridSize >= 0) {
+      this.executeMove('up', 'y', this.currentPosition.y - gridSize);
     } else {
-      self.whichWayToGo('x');
+      this.whichWayToGo('x');
     }
 
   }; 
 
   Snake.prototype.moveDown = function (){
-    if (self.currentPosition.y + gridSize < canvas.height) {
-      self.executeMove('down', 'y', self.currentPosition.y + gridSize);    
+    if (this.currentPosition.y + gridSize < canvas.height) {
+      this.executeMove('down', 'y', this.currentPosition.y + gridSize);    
     } else {
-      self.whichWayToGo('x');
+      this.whichWayToGo('x');
     } 
 
   };
   
   Snake.prototype.moveLeft = function() {
-    if (self.currentPosition.x - gridSize >= 0) {
-      self.executeMove('left', 'x', self.currentPosition.x - gridSize);
+    if (this.currentPosition.x - gridSize >= 0) {
+      this.executeMove('left', 'x', this.currentPosition.x - gridSize);
     } else {
-      self.whichWayToGo('y');
+      this.whichWayToGo('y');
     }
     
   };
   
   Snake.prototype.moveRight = function(){
-    if (self.currentPosition.x + gridSize < canvas.width) {
-      self.executeMove('right', 'x', self.currentPosition.x + gridSize);
+    if (this.currentPosition.x + gridSize < canvas.width) {
+      this.executeMove('right', 'x', this.currentPosition.x + gridSize);
     } else {
-      self.whichWayToGo('y');
+      this.whichWayToGo('y');
     } 
   }; 
 
   Snake.prototype.executeMove = function(dirValue, axisType, axisValue) {
-    self.direction = dirValue;
-    self.currentPosition[axisType] = axisValue;
+    this.direction = dirValue;
+    this.currentPosition[axisType] = axisValue;
   }
 
   Snake.prototype.draw = function(canvas) {
 
     if (this.body.some(function(element){
+                          //alert('currentPosition=' + JSON.stringify(self.currentPosition));
                           return (element.x == self.currentPosition.x) && (element.y == self.currentPosition.y);
                       })){
       gameOver();
@@ -175,9 +183,9 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
 
   Snake.prototype.whichWayToGo = function(axisType){  
     if (axisType=='x') {
-      a = (self.currentPosition.x> canvas.width / 2) ? self.moveLeft() : self.moveRight();
+      a = (this.currentPosition.x> canvas.width / 2) ? this.moveLeft() : this.moveRight();
     } else {
-      a = (self.currentPosition.y > canvas.height / 2) ? self.moveUp() : self.moveDown();
+      a = (this.currentPosition.y > canvas.height / 2) ? this.moveUp() : this.moveDown();
     }
   };
 
@@ -224,7 +232,6 @@ document.onkeydown = function(event) {
     keyCode = event.keyCode; 
   }
  
-  client.publish('/foo', 'hahahaha');
 
   var snake = world.snakes[0];
   switch(keyCode)
