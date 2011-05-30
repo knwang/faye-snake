@@ -11,11 +11,16 @@ function checkSupported() {
 function start(canvas){
 
   var client = new Faye.Client('http://faye-snake-server.heroku.com:80/faye');  
-  client.subscribe('/messages/new', function (data) {  
+  var subscription = client.subscribe('/foo', function (data) {  
     alert(data);  
   });  
   
-  client.publish('/messages/new', {text: 'Hi there'});
+  subscription.callback(function() {
+    alert('Subscription is now active!');
+  });
+  
+  client.publish('/foo', 'he=>el');
+
 
   ctx = canvas.getContext('2d');
   gridSize = 10;
