@@ -10,17 +10,12 @@ function checkSupported() {
 
 function start(canvas){
 
-  var client = new Faye.Client('http://faye-snake-server.heroku.com:80/faye');  
+  this.client = new Faye.Client("/faye");  
+
   var subscription = client.subscribe('/foo', function (data) {  
     alert(data);  
   });  
   
-  subscription.callback(function() {
-    alert('Subscription is now active!');
-  });
-  
-  client.publish('/foo', 'he=>el');
-
 
   ctx = canvas.getContext('2d');
   gridSize = 10;
@@ -62,6 +57,7 @@ function World (canvas, gridSize) {
       this.snakes[0].length += 1;
       this.snakes[0].updateScore();
     }
+
   };
 
   World.prototype.addSnake = function(snake) {
@@ -228,6 +224,8 @@ document.onkeydown = function(event) {
     keyCode = event.keyCode; 
   }
  
+  client.publish('/foo', 'hahahaha');
+
   var snake = world.snakes[0];
   switch(keyCode)
   {
