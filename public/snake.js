@@ -11,7 +11,7 @@ function checkSupported() {
 function start(canvas){
 
   var client = new Faye.Client('http://faye-snake-server.heroku.com:80/faye');  
-  faye.subscribe('/messages/new', function (data) {  
+  client.subscribe('/messages/new', function (data) {  
     alert(data);  
   });  
   
