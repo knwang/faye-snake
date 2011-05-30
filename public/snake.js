@@ -33,7 +33,7 @@ function play(){
     world.snakes[0].move();     
     world.refresh();
     }
-    ,100
+    ,100  
   );
   
 
