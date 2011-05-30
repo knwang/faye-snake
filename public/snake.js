@@ -1,36 +1,28 @@
-function checkSupported() {
-  canvas = document.getElementById('canvas');
-  if (canvas.getContext){
-    start(canvas);
-  } else {
-    alert("We're sorry, but your browser does not support the canvas tag. Please use any web browser other than Internet Explorer.");
-  }
-}
-
-
-function start(canvas){
-
+function start(){
   this.client = new Faye.Client("/faye");  
 
   var subscription = client.subscribe('/foo', function (data) {  
     alert(data);  
   });  
   
-
+  canvas = document.getElementById('canvas');
+  if (!(canvas.getContext)){
+    alert("We're sorry, but your browser does not support the canvas tag. Please use any web browser other than Internet Explorer.");
+    return false;
+  }
+  
   ctx = canvas.getContext('2d');
   gridSize = 10;
   ctx.clearRect(0,0, canvas.width, canvas.height);
-  this.world = new World (canvas, gridSize);
   
+  this.world = new World (canvas, gridSize); 
   world.addSnake(new Snake(50,50,3,'right','rgb(200,0,0)'));
   world.addSnake(new Snake(100,100,3,'left','rgb(0,200,0)'));
-  
-
   world.newFood();
-  play(world);
-}
+  play();
+};
 
-function play(world){
+function play(){
   interval = setInterval(function refreshWorld() {
     world.moveSnakes();
     }
@@ -196,12 +188,11 @@ function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
     document.getElementById('score').innerText = score;
   }
 
-
 }
 
 function restart(){
   pause();
-  start(canvas);
+  start();
 }
 
 function pause(){

@@ -7,22 +7,20 @@
 
 
     //game engine
-
     %script{:src => "/faye.js"}
+
     //%script{:src => "brain.js", :type => "text/javascript"}
     
-  %body{:onload => "checkSupported();"}
+  %body
     #bar
       %span#logo SNAKE
       #score_container
         Score:
         %span#score 0
       #play_menu
-        %button{:onclick => "pause();document.getElementById('play_menu').style.display='none';document.getElementById('pause_menu').style.display='block';"} Pause    
+        %button{:onclick => "start();document.getElementById('play_menu').style.display='none';document.getElementById('pause_menu').style.display='block';"} Start Game
       #pause_menu
-        %button{:onclick => "restart();document.getElementById('play_menu').style.display='block';document.getElementById('pause_menu').style.display='none';"} Restart
-        %button{:onclick => "play();document.getElementById('play_menu').style.display='block';document.getElementById('pause_menu').style.display='none';"} Resume
-      #restart_menu
-        %button{:onclick => "restart();document.getElementById('play_menu').style.display='block';document.getElementById('restart_menu').style.display='none';"} Restart
+        %button{:onclick => "pause();document.getElementById('resume_menu').style.display='block';document.getElementById('pause_menu').style.display='none';"} Pause Game
+      #resume_menu
+        %button{:onclick => "play();document.getElementById('pause_menu').style.display='block';document.getElementById('resume_menu').style.display='none';"} Resume Game
     %canvas#canvas{:width => 400, :height => 300}
-    
