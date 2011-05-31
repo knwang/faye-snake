@@ -53,6 +53,7 @@ $(document).ready(function() {
 function bindRunSnakeButton(){
   $("#run_snake").click(function(){
     mySnake = world.addSnake(new Snake('rgb(200,0,0)'));
+    $("#run_snake").hide();
   });
  
 }
