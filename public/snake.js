@@ -75,7 +75,7 @@ function play(){
   interval = setInterval(function refreshWorld() {
     world.moveSnakes();
     }
-    ,200
+    ,100
   );
 };
 
