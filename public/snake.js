@@ -54,7 +54,10 @@ $(document).ready(function() {
 
 function bindRunSnakeButton(){
   $("#run_snake").click(function(){
-    mySnake = world.addSnake(new Snake());
+    
+    newSnake = new Snake();
+    if (world.snakes.length > 0) newSnake.fillStyle = 'rgb(0,200,0)';
+    mySnake = world.addSnake(newSnake);
     $("#run_snake").hide();
     $("#new_game").show();
     client.publish('/snake-channel',JSON.stringify(world))
@@ -110,7 +113,6 @@ function World () {
         this.snakes[i].length += 1;
         this.snakes[i].updateScore();
         client.publish('/snake-channel',JSON.stringify(world))
-
       }
     }
   };
