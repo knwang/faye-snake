@@ -1,0 +1,9 @@
+A multi-player snake game implemented with faye. The original javascript implementation was forked from https://github.com/paulbjensen/Snake. 
+
+I changed quite a lot of the javascript code, "modernizing" it with jquery and making it more OO. On the server side I am using faye rack middleware. 
+
+A working version is at http://the-snake-game.heroku.com, but speed is slow (being a free server) and not very responsive.. Better to take it to local and play in two browser.
+
+To start the server locally, run 
+
+rackup config.ru -s thin -E production
