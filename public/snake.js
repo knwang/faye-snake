@@ -16,8 +16,8 @@ function start(){
   ctx.clearRect(0,0, canvas.width, canvas.height);
   
   this.world = new World (canvas, gridSize); 
-  world.addSnake(new Snake(50,50,3,'right','rgb(200,0,0)'));
-  world.addSnake(new Snake(100,100,3,'left','rgb(0,200,0)'));
+  world.addSnake(new Snake(3,'right','rgb(200,0,0)'));
+  world.addSnake(new Snake(3,'left','rgb(0,200,0)'));
   world.newFood();
   play();
 };
@@ -59,7 +59,7 @@ function World (canvas, gridSize) {
   };
 
   World.prototype.newFood = function() {
-    this.foodPoint = new Position(Math.floor(Math.random()*(this.canvas.width/this.gridSize))*this.gridSize, Math.floor(Math.random()*(this.canvas.height/this.gridSize))*this.gridSize);
+    this.foodPoint = new Position(this.canvas, this.gridSize);
     for(j=0; j< this.snakes.length; j++){
       if (this.snakes[j].body.indexOf(this.foodPoint) >= 0) {
         this.newFood();
@@ -80,16 +80,16 @@ function World (canvas, gridSize) {
 
 }
 
-function Position(positionX, positionY) {
-  this.x = positionX;
-  this.y = positionY; 
+function Position(aCanvas, aGridSize) {
+  this.x = Math.floor(Math.random()*(aCanvas.width/aGridSize))*aGridSize;
+  this.y = Math.floor(Math.random()*(aCanvas.height/aGridSize))*aGridSize;
 }
 
-function Snake (startPositionX, startPositionY, length, direction, fillStyle) {
+function Snake (length, direction, fillStyle) {
   var self = this;
   this.body = new Array();
   this.length = length; 
-  this.currentPosition = new Position(startPositionX, startPositionY);
+  this.currentPosition = new Position(canvas, gridSize);
   this.direction = direction;
   this.fillStyle = fillStyle;
   this.score = 0; 
