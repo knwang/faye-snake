@@ -3,11 +3,15 @@
     %title Snake
     %link{:rel => 'stylesheet', :href => '/reset.css'}
     %link{:rel => 'stylesheet', :href => '/master.css'}
-    %script{:src => "snake.js", :type => "text/javascript"}
-
 
     //game engine
     %script{:src => "/faye.js"}
+  
+    %script{:src => "jquery.min.js", :type => "text/javascript"}
+    %script{:src => "snake.js", :type => "text/javascript"}
+
+
+
 
     //%script{:src => "brain.js", :type => "text/javascript"}
     
@@ -18,7 +22,8 @@
         Score:
         %span#score 0
       #play_menu
-        %button{:onclick => "start();document.getElementById('play_menu').style.display='none';document.getElementById('pause_menu').style.display='block';"} Start Game
+        %button{:id => "run_snake"}
+          Run My Snake
       #pause_menu
         %button{:onclick => "pause();document.getElementById('resume_menu').style.display='block';document.getElementById('pause_menu').style.display='none';"} Pause Game
       #resume_menu
