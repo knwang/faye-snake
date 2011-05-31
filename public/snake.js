@@ -19,10 +19,13 @@ var subscription = this.client.subscribe('/snake-channel', function (data) {
     }
     */
     newWorld = JSON.parse(data);
-    world = new World();
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    world.update(newWorld);
-    world.drawFood();
+    if (newWorld.id != world.id){
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      world.snakes.length = 0;
+      world.clearFood();
+      world.update(newWorld);
+      world.drawFood();
+    }
     
   }
 });  
@@ -82,6 +85,7 @@ function play(){
 
 function World () {
   var self = this;
+  this.id = Date.now();
   this.snakes = new Array;
   this.foodPoint = new Position();
   
@@ -105,6 +109,8 @@ function World () {
         this.newFood();
         this.snakes[i].length += 1;
         this.snakes[i].updateScore();
+        client.publish('/snake-channel',JSON.stringify(world))
+
       }
     }
   };
@@ -227,14 +233,13 @@ function Snake() {
       };
     };
 
-    context = canvas.getContext('2d');
     this.body.push({'x': this.currentPosition.x, 'y': this.currentPosition.y});
-    context.fillStyle = this.fillStyle;
-    context.fillRect(this.currentPosition.x, this.currentPosition.y, gridSize, gridSize);
+    ctx.fillStyle = this.fillStyle;
+    ctx.fillRect(this.currentPosition.x, this.currentPosition.y, gridSize, gridSize);
 
     if (this.body.length > this.length) {
       var itemToRemove = this.body.shift();
-      context.clearRect(itemToRemove.x, itemToRemove.y, gridSize, gridSize);
+      ctx.clearRect(itemToRemove.x, itemToRemove.y, gridSize, gridSize);
     }  
   };
   
@@ -284,7 +289,7 @@ function pause(){
 }
 
 
-function gameOver(){
+function gameOver(msg){
   var score = (mySnake.length - 3)*10;
   pause();
   alert("Game Over. Your score was "+ score);
