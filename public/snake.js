@@ -5,6 +5,9 @@ function start(){
     alert(data);  
   });  
   
+
+
+
   canvas = document.getElementById('canvas');
   if (!(canvas.getContext)){
     alert("We're sorry, but your browser does not support the canvas tag. Please use any web browser other than Internet Explorer.");
@@ -16,9 +19,15 @@ function start(){
   ctx.clearRect(0,0, canvas.width, canvas.height);
   
   this.world = new World (canvas, gridSize); 
-  world.addSnake(new Snake(3,'right','rgb(200,0,0)'));
-  world.addSnake(new Snake(3,'left','rgb(0,200,0)'));
+
+  subscription.callback(function() {
+    alert('Subscription is now active!');
+  });
+  
+  world.addSnake(new Snake(3,'rgb(200,0,0)'));
+  world.addSnake(new Snake(3,'rgb(0,200,0)'));
   world.newFood();
+
   play();
 };
 
@@ -56,6 +65,7 @@ function World (canvas, gridSize) {
 
   World.prototype.addSnake = function(snake) {
     this.snakes.push(snake);
+    return snake;
   };
 
   World.prototype.newFood = function() {
@@ -85,15 +95,26 @@ function Position(aCanvas, aGridSize) {
   this.y = Math.floor(Math.random()*(aCanvas.height/aGridSize))*aGridSize;
 }
 
-function Snake (length, direction, fillStyle) {
+function Snake(length, fillStyle) {
   var self = this;
   this.body = new Array();
   this.length = length; 
   this.currentPosition = new Position(canvas, gridSize);
-  this.direction = direction;
+  this.direction = randomDirection();
   this.fillStyle = fillStyle;
   this.score = 0; 
+
+  function randomDirection(){
+    switch(Math.floor(Math.random()*4)) {
+      case 0: return 'up';
+      case 1: return 'left';
+      case 2: return 'right';
+      case 3: return 'down';
+    }
   
+  };
+
+
   Snake.prototype.moveUp = function (){
     if ( this.currentPosition.y - gridSize >= 0) {
       this.executeMove('up', 'y', this.currentPosition.y - gridSize);
@@ -140,9 +161,7 @@ function Snake (length, direction, fillStyle) {
         gameOver();
       };
     };
-    //if (this.body.indexOf(this.currentPosition) >= 0) {
-    //  gameOver();
-    //}
+
     context = canvas.getContext('2d');
     this.body.push({'x': this.currentPosition.x, 'y': this.currentPosition.y});
     context.fillStyle = this.fillStyle;
