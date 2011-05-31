@@ -7,9 +7,6 @@ var allowPressKeys = true;
 var subscription = this.client.subscribe('/snake-channel', function (data) {  
   if (data == 'getTheOtherSnake') client.publish('/snake-channel', {food: JSON.stringify(world.foodPoint), snake: JSON.stringify(mySnake)});
   else {
-    //snake object here
-    //alert('food='+data.food);
-    //alert('snake='+data.snake);
     snakeValues = JSON.parse(data.snake);
     snake = new Snake(snakeValues.fillStyle);
     snake.init(snakeValues.id, 
@@ -23,7 +20,6 @@ var subscription = this.client.subscribe('/snake-channel', function (data) {
     world.clearFood();
     world.foodPoint = foodPoint;
     world.drawFood();
-    //alert('mySnake='+mySnake+'snake
     if (mySnake == undefined || (snake.id != mySnake.id)){
       world.addSnake(snake);
     }
@@ -52,8 +48,10 @@ $(document).ready(function() {
 
 function bindRunSnakeButton(){
   $("#run_snake").click(function(){
-    mySnake = world.addSnake(new Snake('rgb(200,0,0)'));
+    color = world.snakes.length == 0 ? 'rgb(200,0,0)' : 'rgb(0,200,0)' ; 
+    mySnake = world.addSnake(new Snake(color));
     $("#run_snake").hide();
+    client.publish('/snake-channel', {food: JSON.stringify(world.foodPoint), snake: JSON.stringify(mySnake)});    
   });
  
 }
@@ -260,7 +258,7 @@ function pause(){
 
 
 function gameOver(){
-  var score = (world.snakes[0].length - 3)*10;
+  var score = (mySnake.length - 3)*10;
   pause();
   alert("Game Over. Your score was "+ score);
   ctx.clearRect(0,0, canvas.width, canvas.height);
@@ -269,7 +267,7 @@ function gameOver(){
 }
 
 
-function defineArrowKeys(world){
+function defineArrowKeys(){
   $(window).keydown(function(event) {
     
     //  if (!allowPressKeys){
