@@ -4,9 +4,9 @@ var client = new Faye.Client("/faye");
 var allowPressKeys = true;
 
 var subscription = this.client.subscribe('/snake-channel', function (data) {  
-  if (data == 'getTheOtherSnake') client.publish('/snake-channel', {food: JSON.stringify(world.foodPoint), snake: JSON.stringify(mySnake)});
+  if (data == 'giveMeTheWorld') client.publish('/snake-channel',JSON.stringify(world))
   else {
-    newSnake = JSON.parse(data.snake);
+/*    newSnake = JSON.parse(data.snake);
     snake = new Snake(newSnake.fillStyle);
     snake.update(newSnake);
 
@@ -17,6 +17,13 @@ var subscription = this.client.subscribe('/snake-channel', function (data) {
     if (mySnake == undefined || (snake.id != mySnake.id)){
       world.addSnake(snake);
     }
+    */
+    newWorld = JSON.parse(data);
+    world = new World();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    world.update(newWorld);
+    world.drawFood();
+    
   }
 });  
 
@@ -31,7 +38,7 @@ $(document).ready(function() {
     bindNewGameButton();
     defineArrowKeys();
 
-    client.publish('/snake-channel', 'getTheOtherSnake');    
+    client.publish('/snake-channel', 'giveMeTheWorld');    
     play();
     
   } else {
@@ -44,11 +51,10 @@ $(document).ready(function() {
 
 function bindRunSnakeButton(){
   $("#run_snake").click(function(){
-    color = world.snakes.length == 0 ? 'rgb(200,0,0)' : 'rgb(0,200,0)' ; 
-    mySnake = world.addSnake(new Snake(color));
+    mySnake = world.addSnake(new Snake());
     $("#run_snake").hide();
     $("#new_game").show();
-    client.publish('/snake-channel', {food: JSON.stringify(world.foodPoint), snake: JSON.stringify(mySnake)});    
+    client.publish('/snake-channel',JSON.stringify(world))
   });
  
 }
@@ -60,6 +66,7 @@ function bindNewGameButton(){
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     $("#run_snake").show();
     $("#new_game").hide();
+    client.publish('/snake-channel',JSON.stringify(world))
     
   });
 }
@@ -78,6 +85,18 @@ function World () {
   this.snakes = new Array;
   this.foodPoint = new Position();
   
+  World.prototype.update = function(aWorld) {
+    for(p=0; p<aWorld.snakes.length; p++){
+      if (mySnake == undefined) {
+        aSnake = new Snake();
+      } else{
+        aSnake = (aWorld.snakes[p].id == mySnake.id) ? mySnake : new Snake();
+      }
+      aSnake.update(aWorld.snakes[p]);
+      this.snakes.push(aSnake);
+    }
+    this.foodPoint = aWorld.foodPoint; 
+  }
 
   World.prototype.refresh = function() {
     for(i=0; i<this.snakes.length; i++){
@@ -129,7 +148,7 @@ function Position() {
   this.y = Math.floor(Math.random()*(canvas.height/gridSize))*gridSize;
 }
 
-function Snake(color) {
+function Snake() {
   var self = this;
  
   this.id = Date.now(); // use timestamp as snake's id
@@ -137,7 +156,7 @@ function Snake(color) {
   this.length = 3; 
   this.currentPosition = new Position(canvas, gridSize);
   this.direction = randomDirection();
-  this.fillStyle = color;
+  this.fillStyle = 'rgb(200,0,0)';
   this.score = 0; 
   
   Snake.prototype.update = function(aSnake) {
@@ -201,7 +220,7 @@ function Snake(color) {
     this.currentPosition[axisType] = axisValue;
   }
 
-  Snake.prototype.draw = function(canvas) {
+  Snake.prototype.draw = function() {
     for(k=0; k < this.body.length; k++){
       if ((this.body[k].x == this.currentPosition.x) && (this.body[k].y == this.currentPosition.y)){
         gameOver();
@@ -299,28 +318,28 @@ function defineArrowKeys(){
       case 37:
         if (snake.direction != "right"){
         snake.direction = 'left';
-        world.moveSnakes();
+        update();
       }
       break;
      
     case 38:
       if (snake.direction != "down"){
         snake.direction = 'up';
-        world.moveSnakes();
+        update();
       }
       break; 
       
     case 39:
       if (snake.direction != "left"){
         snake.direction = 'right';
-        world.moveSnakes();
+        update();
       }
       break; 
     
     case 40:
       if (snake.direction != "up"){
         snake.direction = 'down';
-        world.moveSnakes();
+        update();
       }
       break; 
     
@@ -328,6 +347,12 @@ function defineArrowKeys(){
       break; 
     }
   }); 
+
+  function update(){
+    client.publish('/snake-channel',JSON.stringify(world));
+    world.moveSnakes();
+
+  }
 }
 
 
