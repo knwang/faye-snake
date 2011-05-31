@@ -22,8 +22,11 @@
         Score:
         %span#score 0
       #play_menu
-        %button{:id => "run_snake"}
+        %button#run_snake
           Run My Snake
+      #new_game_menu
+        %button#new_game
+          New Game
       #pause_menu
         %button{:onclick => "pause();document.getElementById('resume_menu').style.display='block';document.getElementById('pause_menu').style.display='none';"} Pause Game
       #resume_menu

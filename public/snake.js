@@ -1,5 +1,4 @@
-var mySnake, canvas, ctx;
-var world = new World();
+var mySnake, canvas, ctx, world;
 var gridSize = 10; 
 var client = new Faye.Client("/faye");
 var allowPressKeys = true;
@@ -7,15 +6,10 @@ var allowPressKeys = true;
 var subscription = this.client.subscribe('/snake-channel', function (data) {  
   if (data == 'getTheOtherSnake') client.publish('/snake-channel', {food: JSON.stringify(world.foodPoint), snake: JSON.stringify(mySnake)});
   else {
-    snakeValues = JSON.parse(data.snake);
-    snake = new Snake(snakeValues.fillStyle);
-    snake.init(snakeValues.id, 
-               snakeValues.body, 
-               snakeValues.length, 
-               snakeValues.currentPosition, 
-               snakeValues.direction, 
-               snakeValues.fillStyle, 
-               snakeValues.score); 
+    newSnake = JSON.parse(data.snake);
+    snake = new Snake(newSnake.fillStyle);
+    snake.update(newSnake);
+
     foodPoint = JSON.parse(data.food);
     world.clearFood();
     world.foodPoint = foodPoint;
@@ -30,9 +24,11 @@ $(document).ready(function() {
    canvas = $("#canvas")[0]; 
    if (ctx = canvas.getContext('2d')){
     ctx.clearRect(0,0, canvas.width, canvas.height);
-    world.newFood();
-    
+    world = new World();
+    world.drawFood();
+
     bindRunSnakeButton();
+    bindNewGameButton();
     defineArrowKeys();
 
     client.publish('/snake-channel', 'getTheOtherSnake');    
@@ -51,9 +47,21 @@ function bindRunSnakeButton(){
     color = world.snakes.length == 0 ? 'rgb(200,0,0)' : 'rgb(0,200,0)' ; 
     mySnake = world.addSnake(new Snake(color));
     $("#run_snake").hide();
+    $("#new_game").show();
     client.publish('/snake-channel', {food: JSON.stringify(world.foodPoint), snake: JSON.stringify(mySnake)});    
   });
  
+}
+
+function bindNewGameButton(){
+  $("#new_game").hide();
+  $("#new_game").click(function(){
+    world = new World();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    $("#run_snake").show();
+    $("#new_game").hide();
+    
+  });
 }
 
 function play(){
@@ -68,7 +76,7 @@ function play(){
 function World () {
   var self = this;
   this.snakes = new Array;
-  this.foodPoint = null; 
+  this.foodPoint = new Position();
   
 
   World.prototype.refresh = function() {
@@ -88,7 +96,7 @@ function World () {
   };
 
   World.prototype.newFood = function() {
-    this.foodPoint = new Position(canvas, gridSize);
+    this.foodPoint = new Position();
     for(j=0; j< this.snakes.length; j++){
       if (this.snakes[j].body.indexOf(this.foodPoint) >= 0) {
         this.newFood();
@@ -116,9 +124,9 @@ function World () {
 
 }
 
-function Position(aCanvas, aGridSize) {
-  this.x = Math.floor(Math.random()*(aCanvas.width/aGridSize))*aGridSize;
-  this.y = Math.floor(Math.random()*(aCanvas.height/aGridSize))*aGridSize;
+function Position() {
+  this.x = Math.floor(Math.random()*(canvas.width/gridSize))*gridSize;
+  this.y = Math.floor(Math.random()*(canvas.height/gridSize))*gridSize;
 }
 
 function Snake(color) {
@@ -132,14 +140,14 @@ function Snake(color) {
   this.fillStyle = color;
   this.score = 0; 
   
-  Snake.prototype.init = function init(id, body, length, currentPosition, direction, fillStyle, score) {
-    this.id = id; 
-    this.body = body;
-    this.length = length; 
-    this.currentPosition = currentPosition;
-    this.direction = direction;
-    this.fillStyle = fillStyle;
-    this.score = score; 
+  Snake.prototype.update = function(aSnake) {
+    this.id = aSnake.id; 
+    this.body = aSnake.body;
+    this.length = aSnake.length; 
+    this.currentPosition = aSnake.currentPosition;
+    this.direction = aSnake.direction;
+    this.fillStyle = aSnake.fillStyle;
+    this.score = aSnake.score; 
   }
 
   function randomDirection(){
